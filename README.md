@@ -1,10 +1,13 @@
-# PHP Formatter README
+# PHP Formatter
 
-This is the README for your extension "PHP Formatter". After writing up a brief description, we recommend including the following sections.
+After installing as an extension with Visual Studio Code, this automatically formats your PHP code, in accordance with PSR-0, PSR-1, [PSR-2](http://www.php-fig.org/psr/psr-2/) or Symfony style conventions.
 
 ## Features
 
-Automatically formats your PHP code, in accordance with PSR-0, PSR-1, [PSR-2](http://www.php-fig.org/psr/psr-2/) or Symfony style conventions.
+* Includes auto-save functionality.
+* Supports different PHP-CS-Fixer installation methods, i.e. Composer vs manual installation.
+* Supports level and fixers.
+* Can be configured to support other file extensions than PHP as well, i.e. ".inc" files.
 
 ## Requirements
 
@@ -31,11 +34,6 @@ Visual Studio Code only reads out PATH variables during startup.
 *Note:* Most issues stem from incorrect installation of the PHP-CS-Fixer, see https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
 
 ## Release Notes
-
-* Includes auto-save functionality.
-* Supports different PHP-CS-Fixer installation methods, i.e. Composer vs manual installation.
-* Supports level and fixers.
-* Can be configured to support other extensions than PHP as well, i.e. .inc files.
 
 ### 0.0.3
 
