@@ -52,7 +52,7 @@
                 "phpformatter.additionalExtensions": {
                     "type": "array",
                     "default": [],
-                    "description": "Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot."
+                    "description": "Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot. For this to work you'll also have to configure your VSCode files.associations settings (https://code.visualstudio.com/Docs/languages/overview#_common-questions)."
                 },
                 "phpformatter.enableFixerLogging": {
                     "type": "boolean",

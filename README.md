@@ -23,7 +23,7 @@ This extension contributes the following settings:
 * `phpformatter.onSave`: Whether files should be fixed on save.
 * `phpformatter.level`: Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage).
 * `phpformatter.fixers`: Fixers to use when fixing a file, e.g. strict, short_array_syntax (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage).
-* `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot.
+* `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot. For this to work you'll also have to configure your VSCode files.associations settings (https://code.visualstudio.com/Docs/languages/overview#_common-questions).
 * `phpformatter.enableFixerLogging`: If true, the extension will log all fixer results (including errors) to the console.
 
 ## Known Issues
