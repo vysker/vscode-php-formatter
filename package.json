@@ -56,7 +56,7 @@
                 },
                 "phpformatter.enableFixerLogging": {
                     "type": "boolean",
-                    "default": "false",
+                    "default": false,
                     "description": "If true, the extension will log all fixer results to the console."
                 }
 			}
