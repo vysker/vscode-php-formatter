@@ -21,6 +21,7 @@ This extension contributes the following settings:
 * `phpformatter.level`: Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage).
 * `phpformatter.fixers`: Fixers to use when fixing a file, e.g. strict, short_array_syntax (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage).
 * `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot.
+* `phpformatter.enableFixerLogging`: If true, the extension will log all fixer results (including errors) to the console.
 
 ## Known Issues
 
@@ -28,11 +29,19 @@ Most issues stem from incorrect installation of the PHP-CS-Fixer.
 
 ## Release Notes
 
-Includes auto-save functionality.
-Supports different PHP-CS-Fixer installation methods.
-Supports level and fixers.
-Can be configured to support other extensions than PHP as well.
+* Includes auto-save functionality.
+* Supports different PHP-CS-Fixer installation methods, i.e. Composer vs manual installation.
+* Supports level and fixers.
+* Can be configured to support other extensions than PHP as well, i.e. .inc files.
+
+### 0.0.2
+
+* Code improvements.
+* Fixed functionality.
+* Improved code readability.
+* Added setting to enable fixer logging. Logs all fixer results (including errors) to the console.
+* Settings are now read every time the fix function is called. Previously settings were only read during activation.
 
 ### 0.0.1
 
-Initial release.
+Initial commit.

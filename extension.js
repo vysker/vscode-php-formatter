@@ -2,14 +2,6 @@
 // Import the module and reference it with the alias vscode in your code below
 var vscode = require('vscode');
 var exec = require('child_process').exec;
-var _settings = {};
-_settings.pharPath = '';
-_settings.phpPath = '';
-_settings.composer = false;
-_settings.onSave = false;
-_settings.level = '';
-_settings.fixers = '';
-_settings.additionalExtensions = [];
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -18,24 +10,26 @@ function activate(context) {
         fix(document);
     });
 
-    var config = vscode.workspace.getConfiguration('phpformatter');
-    _settings.pharPath = config.get('pharPath', '');
-    _settings.phpPath = config.get('phpPath', '');
-    _settings.composer = config.get('composer', false);
-    _settings.onSave = config.get('onSave', '');
-    _settings.level = config.get('level', '');
-    _settings.fixers = config.get('fixers', '');
-    _settings.additionalExtensions = config.get('additionalExtensions', []);
-
     context.subscriptions.push(saveCommand);
 }
 
-// https://github.com/FriendsOfPHP/PHP-CS-Fixer
-// https://github.com/makao/vscode-phpcsfixer/blob/master/src/extension.ts
-// https://code.visualstudio.com/docs/extensionAPI/vscode-api
-
 function fix(document) {
+    // Makes our code a little more readable
+    var config = vscode.workspace.getConfiguration('phpformatter');
+    var _settings = {};
+    _settings.pharPath = config.get('pharPath', '');
+    _settings.phpPath = config.get('phpPath', '');
+    _settings.composer = config.get('composer', false);
+    _settings.onSave = config.get('onSave', false);
+    _settings.level = config.get('level', '');
+    _settings.fixers = config.get('fixers', '');
+    _settings.additionalExtensions = config.get('additionalExtensions', []);
+    _settings.enableFixerLogging = config.get('enableFixerLogging', false);
+
     if(_settings.onSave == false || document.languageId != 'php') {
+        return;
+    }
+    if(Array.isArray(_settings.additionalExtensions) && !_settings.additionalExtensions.inArray(document.languageId)) {
         return;
     }
 
@@ -45,18 +39,23 @@ function fix(document) {
     var executable = 'php-cs-fixer';
     var args = ['fix', document.uri.fsPath];
 
-    if(_settings.pharPath != '') {
-        executable = pharPath;
+    if(_settings.composer == false && _settings.pharPath) {
+        executable = _settings.pharPath;
+        if(_settings.phpPath) {
+            executable = _settings.phpPath + ' ' + executable;
+        }
+    } else {
+        console.log('PHP Formatter: Neither a pharPath or use of Composer was specified. Doing nothing...');
+        return;
     }
-    if(_settings.level != '') {
-        args.push('--level=' + level);
+    if(_settings.level) {
+        args.push('--level=' + _settings.level);
     }
-    if(_settings.fixers != '') {
-        args.push('--fixers=' + fixers);
+    if(_settings.fixers) {
+        args.push('--fixers=' + _settings.fixers);
     }
 
-    // var fixCmd = 'php-cs-fixer fix ' + document.uri.fsPath;
-    var fixCmd = executable + args.join(' ');
+    var fixCmd = executable + ' ' + args.join(' ');
     var execResult = exec(fixCmd);
 
     execResult.stdout.on('data', function(buffer) {
@@ -68,8 +67,10 @@ function fix(document) {
     });
 
     execResult.on('close', function(code) {
-        console.log(stdout);
-        console.log(stderr);
+        if(_settings.enableFixerLogging) {
+            console.log(stdout);
+            console.log(stderr);
+        }
 
         // Reopen the window. Since the file is edited externally,
         // the text editor's buffer is not aware of the changes made to the file.

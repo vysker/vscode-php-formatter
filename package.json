@@ -3,7 +3,7 @@
     "displayName": "PHP Formatter",
     "description": "A wrapper for the Sensiolabs PHP CS Fixer. Analyzes some PHP source code and tries to fix coding standards issues (PSR-1 and PSR-2 compatible).",
     "version": "0.0.1",
-    "publisher": "Sophisticode",
+    "publisher": "Dick Visser",
     "engines": {
         "vscode": "^1.0.0"
     },
@@ -26,8 +26,8 @@
 				},
 				"phpformatter.phpPath": {
 					"type": "string",
-					"default": "",
-					"description": "If the pharPath is set, and you are not using Composer, this should point to the php.exe file."
+					"default": "php",
+					"description": "If the pharPath is set, and you are not using Composer, and you haven't added PHP to your PATH, this should point to the php.exe file."
 				},
                 "phpformatter.composer": {
 					"type": "boolean",
@@ -53,6 +53,11 @@
                     "type": "array",
                     "default": "",
                     "description": "Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot."
+                },
+                "phpformatter.enableFixerLogging": {
+                    "type": "boolean",
+                    "default": "false",
+                    "description": "If true, the extension will log all fixer results to the console."
                 }
 			}
 		}
