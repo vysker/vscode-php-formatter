@@ -1,10 +1,11 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+// The module 'vscode' contains the VS Code extensibility API.
+// Import the module and reference it with the alias vscode in your code below.
 var vscode = require('vscode');
 var exec = require('child_process').exec;
+var path = require('path');
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+// This method is called when your extension is activated.
+// Your extension is activated the very first time the command is executed.
 function activate(context) {
     var saveCommand = vscode.workspace.onDidSaveTextDocument(function(document) {
         fix(document);
@@ -33,21 +34,13 @@ function fix(document) {
         return;
     }
 
-    var stdout = '';
-    var stderr = '';
+    var args = ['fix'];
 
-    var executable = 'php-cs-fixer';
-    var args = ['fix', document.uri.fsPath];
+    // Make sure to put double quotes around our path, otherwise the command
+    // (Symfony, actually) will fail when it encounters paths with spaces in them.
+    var escapedPath = '"' + path.normalize(document.uri.fsPath) + '"';
+    args.push(escapedPath);
 
-    if(_settings.composer == false && _settings.pharPath) {
-        executable = _settings.pharPath;
-        if(_settings.phpPath) {
-            executable = _settings.phpPath + ' ' + executable;
-        }
-    } else if(_settings.composer == false) {
-        console.log('PHP Formatter: Neither a pharPath or use of Composer was specified. Doing nothing...');
-        return;
-    }
     if(_settings.level) {
         args.push('--level=' + _settings.level);
     }
@@ -55,7 +48,25 @@ function fix(document) {
         args.push('--fixers=' + _settings.fixers);
     }
 
-    var fixCmd = executable + ' ' + args.join(' ');
+    var fixCmd = '';
+    if(_settings.composer) {
+        // If PHP-CS-Fixer was installed using Composer, and it was added to the PATH,
+        // then we don't have to prepend the command with 'php' or point to the .phar file.
+        fixCmd = 'php-cs-fixer ' + args.join(' ');
+    } else if(_settings.pharPath) {
+        // If PHP-CS-Fixer was installed manually, then we will have to provide the full
+        // .phar file path. And optionally include the php path as well.
+        args.unshift(_settings.pharPath);
+        fixCmd = _settings.phpPath + args.join(' ');
+    } else {
+        logDebug('Neither a pharPath or use of Composer was specified. Aborting...');
+        return;
+    }
+    
+    logDebug('Full command being executed: ' + fixCmd);
+
+    var stdout = '';
+    var stderr = '';
     var execResult = exec(fixCmd);
 
     execResult.stdout.on('data', function(buffer) {
@@ -67,9 +78,11 @@ function fix(document) {
     });
 
     execResult.on('close', function(code) {
-        if(_settings.enableFixerLogging) {
-            console.log(stdout);
-            console.log(stderr);
+        if(stdout) {
+            logDebug(stdout);
+        }
+        if(stderr) {
+            logDebug(stderr);
         }
 
         // Reopen the window. Since the file is edited externally,
@@ -81,9 +94,16 @@ function fix(document) {
     });
 }
 
+// Logs a message to the console if the phpformatter.enableFixerLogging setting is set to true.
+function logDebug(message) {
+    if(vscode.workspace.getConfiguration('phpformatter').get('enableFixerLogging', false) != false) {
+        console.log('PHPFormatter: ' + message);
+    }
+}
+
 exports.activate = activate;
 
-// this method is called when your extension is deactivated
+// This method is called when your extension is deactivated
 function deactivate() {
 }
 exports.deactivate = deactivate;
