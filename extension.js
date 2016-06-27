@@ -29,7 +29,7 @@ function fix(document) {
     if(_settings.onSave == false || document.languageId != 'php') {
         return;
     }
-    if(Array.isArray(_settings.additionalExtensions) && !_settings.additionalExtensions.inArray(document.languageId)) {
+    if(Array.isArray(_settings.additionalExtensions) && _settings.additionalExtensions.indexOf(document.languageId) != -1) {
         return;
     }
 
