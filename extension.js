@@ -44,7 +44,7 @@ function fix(document) {
         if(_settings.phpPath) {
             executable = _settings.phpPath + ' ' + executable;
         }
-    } else {
+    } else if(_settings.composer == false) {
         console.log('PHP Formatter: Neither a pharPath or use of Composer was specified. Doing nothing...');
         return;
     }

@@ -8,7 +8,7 @@ Automatically formats your PHP code, in accordance with PSR-0, PSR-1, [PSR-2](ht
 
 ## Requirements
 
-Requires installation of the PHP-CS-Fixer. For more info see: https://github.com/FriendsOfPHP/PHP-CS-Fixer.
+Requires installation of the PHP-CS-Fixer. For more info see: https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
 
 ## Extension Settings
 
@@ -25,7 +25,10 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-Most issues stem from incorrect installation of the PHP-CS-Fixer.
+If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards.
+Visual Studio Code only reads out PATH variables during startup.
+
+*Note:* Most issues stem from incorrect installation of the PHP-CS-Fixer, see https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
 
 ## Release Notes
 
@@ -33,6 +36,10 @@ Most issues stem from incorrect installation of the PHP-CS-Fixer.
 * Supports different PHP-CS-Fixer installation methods, i.e. Composer vs manual installation.
 * Supports level and fixers.
 * Can be configured to support other extensions than PHP as well, i.e. .inc files.
+
+### 0.0.3
+
+Setting `phpformatter.composer` to `true` now actually overrides the use of pharPath.
 
 ### 0.0.2
 
