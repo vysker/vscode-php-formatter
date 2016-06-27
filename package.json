@@ -1,0 +1,66 @@
+{
+    "name": "php-formatter",
+    "displayName": "PHP Formatter",
+    "description": "A wrapper for the Sensiolabs PHP CS Fixer. Analyzes some PHP source code and tries to fix coding standards issues (PSR-1 and PSR-2 compatible).",
+    "version": "0.0.1",
+    "publisher": "Sophisticode",
+    "engines": {
+        "vscode": "^1.0.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./extension",
+    "contributes": {
+        "configuration": {
+			"type": "object",
+			"title": "PHP Formatter Settings",
+			"properties": {
+				"phpformatter.pharPath": {
+					"type": "string",
+					"default": "",
+					"description": "Should point to php-cs-fixer.phar file, if you have installed this manually (without Composer). Should include .phar extension."
+				},
+				"phpformatter.phpPath": {
+					"type": "string",
+					"default": "",
+					"description": "If the pharPath is set, and you are not using Composer, this should point to the php.exe file."
+				},
+                "phpformatter.composer": {
+					"type": "boolean",
+					"default": false,
+					"description": "Whether the php-cs-fixer library has been installed using Composer. If true, the extension will override pharPath and assume you have added Composer to your PATH."
+				},
+                "phpformatter.onSave": {
+					"type": "boolean",
+					"default": false,
+					"description": "Whether files should be fixed on save."
+				},
+                "phpformatter.level": {
+                    "type": "string",
+                    "default": "psr2",
+                    "description": "Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)."
+                },
+                "phpformatter.fixers": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Fixers to use when fixing a file, e.g. strict, short_array_syntax (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)."
+                },
+                "phpformatter.additionalExtensions": {
+                    "type": "array",
+                    "default": "",
+                    "description": "Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot."
+                }
+			}
+		}
+    },
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "vscode": "^0.11.0"
+    }
+}
