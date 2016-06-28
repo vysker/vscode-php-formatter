@@ -29,11 +29,15 @@ This extension contributes the following settings:
 ## Known Issues
 
 * If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards. Visual Studio Code only reads out PATH variables during startup.
-* Undo history is lost after saving the file.
+* **Undo history is lost after saving the file.** A workaround is being looked into.
 
-*Note:* Most issues stem from incorrect installation of the PHP-CS-Fixer, see https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
+**Note:** Most issues stem from incorrect installation of the PHP-CS-Fixer, see https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
 
 ## Release Notes
+
+### 0.0.6
+
+Added icon and more meta info in package.json. As well as the first icon!
 
 ### 0.0.5
 
