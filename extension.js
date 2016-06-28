@@ -27,11 +27,16 @@ function fix(document) {
     _settings.additionalExtensions = config.get('additionalExtensions', []);
     _settings.enableFixerLogging = config.get('enableFixerLogging', false);
 
-    if(_settings.onSave == false || document.languageId != 'php') {
+    if(_settings.onSave == false) {
         return;
     }
-    if(Array.isArray(_settings.additionalExtensions) && _settings.additionalExtensions.indexOf(document.languageId) != -1) {
-        return;
+    if(document.languageId != 'php') {
+        if(Array.isArray(_settings.additionalExtensions) && _settings.additionalExtensions.indexOf(document.languageId) != -1) {
+            // This was set as additional extension.
+        } else {
+            // This is neither a .php files, nor anything that was set in additionalExtensions.
+            return;
+        }
     }
 
     var args = ['fix'];

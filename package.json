@@ -2,12 +2,13 @@
     "name": "php-formatter",
     "displayName": "PHP Formatter",
     "description": "A wrapper for the Sensiolabs PHP CS Fixer. Analyzes some PHP source code and tries to fix coding standards issues (PSR-1 and PSR-2 compatible).",
-    "version": "0.0.1",
-    "publisher": "Dick Visser",
+    "version": "0.0.5",
+    "publisher": "Sophisticode",
     "engines": {
         "vscode": "^1.0.0"
     },
     "categories": [
+        "Linters",
         "Other"
     ],
     "activationEvents": [

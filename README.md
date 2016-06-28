@@ -35,10 +35,13 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.5
+
+Added working support for multiple file extensions besides .php. See `phpformatter.additionalExtensions` setting for more info.
+
 ### 0.0.4
 
-* All paths now support spaces (`' '`).
-* Added working support for multiple file extensions besides .php. See `phpformatter.additionalExtensions` setting for more info.
+All paths now support spaces (`' '`).
 
 ### 0.0.3
 
