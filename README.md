@@ -1,6 +1,6 @@
 # PHP Formatter
 
-After installing as an extension with Visual Studio Code, this automatically formats your PHP code, in accordance with PSR-0, PSR-1, [PSR-2](http://www.php-fig.org/psr/psr-2/) or Symfony style conventions.
+After installing as an extension with Visual Studio Code, this extension automatically formats your PHP code, in accordance with PSR-0, PSR-1, [PSR-2](http://www.php-fig.org/psr/psr-2/) or Symfony style conventions.
 
 ## Features
 
@@ -28,12 +28,17 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards.
-Visual Studio Code only reads out PATH variables during startup.
+* If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards. Visual Studio Code only reads out PATH variables during startup.
+* Undo history is lost after saving the file.
 
 *Note:* Most issues stem from incorrect installation of the PHP-CS-Fixer, see https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
 
 ## Release Notes
+
+### 0.0.4
+
+* All paths now support spaces (`' '`).
+* Added working support for multiple file extensions besides .php. See `phpformatter.additionalExtensions` setting for more info.
 
 ### 0.0.3
 
