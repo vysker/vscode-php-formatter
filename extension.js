@@ -56,8 +56,8 @@ function fix(document) {
     } else if(_settings.pharPath) {
         // If PHP-CS-Fixer was installed manually, then we will have to provide the full
         // .phar file path. And optionally include the php path as well.
-        args.unshift(_settings.pharPath);
-        fixCmd = _settings.phpPath + args.join(' ');
+        args.unshift('"' + _settings.pharPath + '"');
+        fixCmd = '"' + _settings.phpPath + '" ' + args.join(' ');
     } else {
         logDebug('Neither a pharPath or use of Composer was specified. Aborting...');
         return;
