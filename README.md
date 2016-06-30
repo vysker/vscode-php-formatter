@@ -13,6 +13,21 @@ After installing as an extension with Visual Studio Code, this extension automat
 
 Requires installation of the PHP-CS-Fixer. For more info see: https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
 
+## Installation Guide
+
+1. Download this extension by using any of the methods on this page: https://code.visualstudio.com/Docs/extensions/install-extension.
+2. Install PHP-CS-Fixer using one of the methods on this page: https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
+3. Enable the extension by adding this setting to your [user settings](https://code.visualstudio.com/Docs/customization/userandworkspace): `"phpformatter.onSave" = true`
+4. Based on your installation method of PHP-CS-Fixer, use the following settings:
+  1. **[Composer]** If you installed PHP-CS-Fixer using Composer, then do the following:
+    1. Make sure you add Composer to your PATH environment variable. On Windows that is `%APPDATA%\Composer\vendor\bin`. For Linux that is `/.composer/vendor/bin`.
+    2. Add this to your user settings `"phpformatter.composer": true`.
+  2. **[Manual]** If you installed the .phar file manually, then do the following:
+    1. Point the `phpformatter.pharPath` setting to where you put the .phar file, e.g. `"phpformatter.pharPath" = "C:/php-cs-fixer.phar"`.
+    2. Make sure PHP is part of your PATH environment variable (test this by typing `php -v` into your terminal). If you do not wish to do so, then add this setting `"phpformatter.phpPath" = "C:\xampp\php.exe"` and point it to the relevant location.
+    3. Make sure `phpformatter.composer` is set to `false`, which it is by default.
+5. You're done! You might need to restart Visual Studio Code, however.
+
 ## Extension Settings
 
 This extension contributes the following settings:
@@ -25,15 +40,24 @@ This extension contributes the following settings:
 * `phpformatter.fixers`: Fixers to use when fixing a file, e.g. strict, short_array_syntax (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage).
 * `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot. For this to work you'll also have to configure your VSCode files.associations settings (https://code.visualstudio.com/Docs/languages/overview#_common-questions).
 * `phpformatter.enableFixerLogging`: If true, the extension will log all fixer results (including errors) to the console.
+* `phpformatter.notifications`: If true, the extension will show notifications.
 
 ## Known Issues
 
 * If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards. Visual Studio Code only reads out PATH variables during startup.
 * **Undo history is lost after saving the file.** A workaround is being looked into.
+* If you are on Windows, using xampp, and get the error `PHP Warning: PHP Startup: Unable to load dynamic library`, try going to you xampp directory and run `setup_xampp.bat`. After that, restart Visual Studio Code and try again.
 
 **Note:** Most issues stem from incorrect installation of the PHP-CS-Fixer, see https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
 
 ## Release Notes
+
+### 0.0.7
+
+* Added `phpformatter.notifications` setting.
+* The extension will now show a notification when the required settings are not set.
+* The notification has a button that opens up a browser with the installation guide on the Github page.
+* Added installation guide and known issue to the readme.
 
 ### 0.0.6
 

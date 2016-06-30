@@ -1,8 +1,7 @@
-// The module 'vscode' contains the VS Code extensibility API.
-// Import the module and reference it with the alias vscode in your code below.
-var vscode = require('vscode');
-var exec = require('child_process').exec;
-var path = require('path');
+var vscode = require('vscode');             // Contains the VS Code extensibility API.
+var exec = require('child_process').exec;   // Used for executing the php-cs-fixer command
+var path = require('path');                 // Used for normalizing the document's path
+var open = require('open');                 // Used for opening a browser on the Github page
 
 // This method is called when your extension is activated.
 // Your extension is activated the very first time the command is executed.
@@ -10,6 +9,31 @@ function activate(context) {
     var saveCommand = vscode.workspace.onDidSaveTextDocument(function(document) {
         fix(document);
     });
+
+    var config = vscode.workspace.getConfiguration('phpformatter');
+    if( config.get('notifications', false) &&       // Check whether we are allowed to show notifications
+        config.get('pharPath', '') == '' &&         // Did the user not set a .phar path?
+        config.get('composer', false) == false      // Did the user not set composer to true?
+        ) {
+        // If we arrive here, then we can safely say the user has not set up the extension yet. So let's notify them about that.
+
+        // Create a button that opens browser with the Github page at the installation guide anchor
+        var guideButton = {
+            'title': 'Guide',
+            'slug': 'open-guide',
+            'action': function() {
+                open('https://github.com/Dickurt/vscode-php-formatter#installation-guide');
+            }
+        };
+
+        // Show a notification to the user with the button that opens a browser
+        vscode.window.showInformationMessage('Thanks for using PHP Formatter! There is still some setting up to do, however.', guideButton)
+            .then(function(selection) {
+                if(selection.hasOwnProperty('slug') && selection.slug == 'open-guide') {
+                    selection.action();
+                }
+            });
+    }
 
     context.subscriptions.push(saveCommand);
 }
