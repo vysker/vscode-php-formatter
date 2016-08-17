@@ -11,13 +11,13 @@ After installing as an extension with Visual Studio Code, this extension automat
 
 ## Requirements
 
-Requires installation of the PHP-CS-Fixer. For more info see: https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
+Requires installation of the PHP-CS-Fixer. For more info see [their repo](https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation).
 
 ## Installation Guide
 
 1. Download this extension by using any of the methods on this page: https://code.visualstudio.com/Docs/extensions/install-extension.
 2. Install PHP-CS-Fixer using one of the methods on this page: https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
-3. Enable the extension by adding this setting to your [user settings](https://code.visualstudio.com/Docs/customization/userandworkspace): `"phpformatter.onSave" = true`
+3. To format a file with a custom keybinding, see [Extension Commands](#commands). To format a file on save, add this to your [user settings](https://code.visualstudio.com/Docs/customization/userandworkspace): `"phpformatter.onSave" = true`.
 4. Based on your installation method of PHP-CS-Fixer, use the following settings:
   1. **[Composer]** If you installed PHP-CS-Fixer using Composer, then do the following:
     1. Make sure you add Composer to your PATH environment variable. On Windows that is `%APPDATA%\Composer\vendor\bin`. For Linux that is `/.composer/vendor/bin`.
@@ -36,21 +36,48 @@ This extension contributes the following settings:
 * `phpformatter.phpPath`: If the pharPath is set, and you are not using Composer, this should point to the php.exe file.
 * `phpformatter.composer`: Whether the php-cs-fixer library has been installed using Composer. If true, the extension will override pharPath and assume you have added Composer to your PATH.
 * `phpformatter.onSave`: Whether files should be fixed on save.
-* `phpformatter.level`: Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage).
-* `phpformatter.fixers`: Fixers to use when fixing a file, e.g. strict, short_array_syntax (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage).
-* `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot. For this to work you'll also have to configure your VSCode files.associations settings (https://code.visualstudio.com/Docs/languages/overview#_common-questions).
-* `phpformatter.enableFixerLogging`: If true, the extension will log all fixer results (including errors) to the console.
+* `phpformatter.level`: Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony ([More info](https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)).
+* `phpformatter.fixers`: Fixers to use when fixing a file, e.g. strict, short_array_syntax ([More info](https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)).
+* `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot. For this to work you'll also have to configure your VSCode files.associations settings ([More info](https://code.visualstudio.com/Docs/languages/overview#_common-questions)).
+* `phpformatter.enableFixerLogging`: **Deprecated** in favor of `phpformatter.logging`.
+* `phpformatter.logging`: If true, the extension will log all sorts of (debug) info to the console. Useful for troubleshooting.
 * `phpformatter.notifications`: If true, the extension will show notifications.
+* `phpformatter.useTempFiles`: If true, a temp file will be used for the formatter to fix. After formatting the temp file, the contents will be copied back to the original file. This circumvents a lot of issues the original way had. Therefore, this method will be used by default.
+
+## <a name="commands"></a>Extension commands
+
+The extension currently contributes just one command. Your Visual Studio Code environment can be configured to trigger this command with a custom keybinding or other action.
+
+### phpformatter.fix
+
+* Fixes the current file or selection, if there is any.
+* Does not save the file after fixing.
+* Requires `phpformatter.useTempFiles` to be turned on.
+
+To set this up. Go to `File -> Preferences -> Keyboard Shortcuts` and add the following to `keybindings.json`:
+
+`{"key": "alt+shift+f", "command": "phpformatter.fix", "when": "editorFocus"}`
+
+After saving the file you should be able to format files using the keybinding `alt+shift+f`.
 
 ## Known Issues
 
 * If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards. Visual Studio Code only reads out PATH variables during startup.
-* **Undo history is lost after saving the file.** A workaround is being looked into.
+* If the setting `phpformatter`.useTempFiles is of, you will lose your undo history after saving the file.
 * If you are on Windows, using xampp, and get the error `PHP Warning: PHP Startup: Unable to load dynamic library`, try going to you xampp directory and run `setup_xampp.bat`. After that, restart Visual Studio Code and try again.
 
-**Note:** Most issues stem from incorrect installation of the PHP-CS-Fixer, see https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
+**Note:** Most issues stem from incorrect installation of the PHP-CS-Fixer, see [their repo](https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation) for more info.
 
 ## Release Notes
+
+### 0.1.0
+
+* Added `phpformatter.useTempFiles` setting, which is on by default. This fixes a whole ranges of issues the old method had, and opens up the road other features as well.
+* Added `phpformatter.fix` command. This introduces the ability to fix a file or selection by registering a custom keybinding. See [Extension Commands](#assets) for more info.
+* Added the ability to fix only the current selection. This requires `phpformatter.useTempFiles` to be turned on.
+* Deprecated `phpformatter.enableFixerLogging` in favor of `phpformatter.logging`.
+* Added `phpformatter.logging` setting to replace `phpformatter.enableFixerLogging`.
+* Improved logging. Added more log messages and added two notifications.
 
 ### 0.0.7
 
