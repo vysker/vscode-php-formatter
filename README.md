@@ -72,6 +72,10 @@ After saving the file you should be able to format files using the keybinding `a
 
 ## Release Notes
 
+### 0.1.1
+
+New icon.
+
 ### 0.1.0
 
 * Added `phpformatter.useTempFiles` setting, which is on by default. This fixes a whole ranges of issues the old method had, and opens up the road other features as well.
