@@ -4,7 +4,9 @@ After installing as an extension with Visual Studio Code, this extension automat
 
 ## Features
 
-* Includes auto-save functionality.
+* Format current selection only, or the whole file.
+* Trigger formatting with custom keybindings or actions.
+* Supports formatting on save.
 * Supports different PHP-CS-Fixer installation methods, i.e. Composer vs manual installation.
 * Supports level and fixers.
 * Can be configured to support other file extensions than PHP as well, i.e. ".inc" files.
