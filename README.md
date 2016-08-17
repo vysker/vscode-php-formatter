@@ -15,17 +15,17 @@ Requires installation of the PHP-CS-Fixer. For more info see [their repo](https:
 
 ## Installation Guide
 
-1. Download this extension by using any of the methods on this page: https://code.visualstudio.com/Docs/extensions/install-extension.
-2. Install PHP-CS-Fixer using one of the methods on this page: https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation.
-3. To format a file with a custom keybinding, see [Extension Commands](#commands). To format a file on save, add this to your [user settings](https://code.visualstudio.com/Docs/customization/userandworkspace): `"phpformatter.onSave" = true`.
-4. Based on your installation method of PHP-CS-Fixer, use the following settings:
+1. Download this extension by using any of the methods [here](https://code.visualstudio.com/Docs/extensions/install-extension).
+2. Install PHP-CS-Fixer using one of the methods [here](https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation).
+3. Based on your installation method of PHP-CS-Fixer, use one of the following settings:
   1. **[Composer]** If you installed PHP-CS-Fixer using Composer, then do the following:
     1. Make sure you add Composer to your PATH environment variable. On Windows that is `%APPDATA%\Composer\vendor\bin`. For Linux that is `/.composer/vendor/bin`.
     2. Add this to your user settings `"phpformatter.composer": true`.
-  2. **[Manual]** If you installed the .phar file manually, then do the following:
-    1. Point the `phpformatter.pharPath` setting to where you put the .phar file, e.g. `"phpformatter.pharPath" = "C:/php-cs-fixer.phar"`.
-    2. Make sure PHP is part of your PATH environment variable (test this by typing `php -v` into your terminal). If you do not wish to do so, then add this setting `"phpformatter.phpPath" = "C:\xampp\php.exe"` and point it to the relevant location.
-    3. Make sure `phpformatter.composer` is set to `false`, which it is by default.
+  2. **[Manual]** If you installed the php-cs-fixer file manually, then do the following:
+    1. Point the `phpformatter.pharPath` setting to where you put the php-cs-fixer file, e.g. `"phpformatter.pharPath" = "C:/php-cs-fixer.phar"` or `"phpformatter.pharPath" = "/usr/local/bin/php-cs-fixer"`.
+    2. Make sure PHP is part of your PATH environment variable (test this by typing `php -v` into your terminal). If you don't want PHP in your path variable, then add this setting `"phpformatter.phpPath" = "C:\xampp\php.exe"` and point it to the relevant location.
+    3. Make sure the `phpformatter.composer` setting is set to `false`, which it is by default.
+4. To format a file with a custom keybinding or action, see [Extension Commands](#commands). To format a file on save, add this to your [user settings](https://code.visualstudio.com/Docs/customization/userandworkspace): `"phpformatter.onSave" = true`.
 5. You're done! You might need to restart Visual Studio Code, however.
 
 ## Extension Settings
@@ -73,7 +73,7 @@ After saving the file you should be able to format files using the keybinding `a
 ### 0.1.0
 
 * Added `phpformatter.useTempFiles` setting, which is on by default. This fixes a whole ranges of issues the old method had, and opens up the road other features as well.
-* Added `phpformatter.fix` command. This introduces the ability to fix a file or selection by registering a custom keybinding. See [Extension Commands](#assets) for more info.
+* Added `phpformatter.fix` command. This introduces the ability to fix a file or selection by registering a custom keybinding. See [Extension Commands](#commands) for more info.
 * Added the ability to fix only the current selection. This requires `phpformatter.useTempFiles` to be turned on.
 * Deprecated `phpformatter.enableFixerLogging` in favor of `phpformatter.logging`.
 * Added `phpformatter.logging` setting to replace `phpformatter.enableFixerLogging`.
