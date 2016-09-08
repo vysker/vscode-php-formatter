@@ -72,6 +72,10 @@ After saving the file you should be able to format files using the keybinding `a
 
 ## Release Notes
 
+### 0.1.2
+
+Solved an issue where fixing a file would erase its contents.
+
 ### 0.1.1
 
 New icon.
