@@ -8,8 +8,12 @@ var fs = require('fs');                     // Used for reading and writing the 
 // This method is called when your extension is activated.
 // Your extension is activated the very first time the command is executed.
 function activate(context) {
+    var config = vscode.workspace.getConfiguration('phpformatter');
+
+    tmp.setGracefulCleanup();
+    
     var saveCommand = vscode.workspace.onDidSaveTextDocument(function(document) {
-        if(_settings.onSave == false) {
+        if(config.get('onSave', false) == false) {
             return;
         }
         fix(document);
@@ -18,7 +22,6 @@ function activate(context) {
         fix(vscode.window.activeTextEditor.document);
     });
 
-    var config = vscode.workspace.getConfiguration('phpformatter');
     if( config.get('notifications', false) &&       // Check whether we are allowed to show notifications
         config.get('pharPath', '') == '' &&         // Did the user not set a .phar path?
         config.get('composer', false) == false      // Did the user not set composer to true?
@@ -87,6 +90,7 @@ function fix(document) {
         return;
     }
 
+    var tempFile = null;
     var tempFileFd = -1;
     var prependedPhpTag = false;
     if(_settings.useTempFiles) {
@@ -94,11 +98,17 @@ function fix(document) {
         logDebug('Creating temp file.');
 
         // Create temp file
-        var tempFile = tmp.fileSync({prefix: 'phpfmt-'});
+        tempFile = tmp.fileSync({prefix: 'phpfmt-'});
         tempFileFd = tempFile.fd;
         filePath = tempFile.name;
 
-        logDebug('Writing current document content to temp file.');
+        logDebug('Tempfile fd: ' + tempFile.fd);
+        logDebug('Tempfile name: ' + filePath);
+
+        logDebug('Writing current document content to temp file. Until VSCode will have a way of querying encoding, utf8 will be used for reading and writing.');
+
+        // Content to fix
+        var fixContent = '';
 
         // If the user made a selection, then only copy the selected text.
         if(selection != false) {
@@ -112,15 +122,20 @@ function fix(document) {
                 selectionText = '<?php\n' + selectionText;
                 prependedPhpTag = true;
             }
-            fs.writeFileSync(tempFileFd, selectionText);
+
+            fixContent = selectionText;
         } else {
-            fs.writeFileSync(tempFileFd, document.getText());
+            fixContent = document.getText();
         }
+
+        // Write the relevant content to the temp file
+        // fs.writeFileSync(tempFileFd, fixContent);
+        fs.writeFileSync(tempFileFd, fixContent, {encoding: 'utf8'});
     }
 
     // Make sure to put double quotes around our path, otherwise the command
     // (Symfony, actually) will fail when it encounters paths with spaces in them.
-    var escapedPath = '"' + filePath + '"';
+    var escapedPath = enquote(filePath);
     
     args.push(escapedPath);
 
@@ -139,8 +154,8 @@ function fix(document) {
     } else if(_settings.pharPath) {
         // If PHP-CS-Fixer was installed manually, then we will have to provide the full
         // .phar file path. And optionally include the php path as well.
-        args.unshift('"' + _settings.pharPath + '"');
-        fixCmd = '"' + _settings.phpPath + '" ' + args.join(' ');
+        args.unshift(enquote(_settings.pharPath));
+        fixCmd = enquote(_settings.phpPath) + ' ' + args.join(' ');
     } else {
         if(_settings.notifications) vscode.window.showInformationMessage('Neither a pharPath or use of Composer was specified. Aborting...');
         logDebug('Neither a pharPath or use of Composer was specified. Aborting...');
@@ -163,9 +178,11 @@ function fix(document) {
 
     execResult.on('close', function(code) {
         if(stdout) {
+            logDebug('Logging PHP-CS-Fixer command stdout result');
             logDebug(stdout);
         }
         if(stderr) {
+            logDebug('Logging PHP-CS-Fixer command stderr result');
             logDebug(stderr);
         }
 
@@ -177,42 +194,55 @@ function fix(document) {
             // otherwise, see https://nodejs.org/docs/latest/api/fs.html#fs_fs_readfilesync_file_options)
             // TODO: Detect current document file encoding so we don't have to
             // assume utf8.
-            logDebug('Reading temp file content (assuming utf8).');
-            var tempFileContent = fs.readFileSync(tempFileFd, {encoding: 'utf8'});
+            logDebug('Reading temp file content.');
+            // var tempFileContent = fs.readFileSync(tempFileFd, {encoding: 'utf8'}); // Not using this because the file descriptor cursor position cannot be set manually
 
-            // If we prepended a PHP opening tag manually, we'll have to remove
-            // it now, before we overwrite our document.
-            if(prependedPhpTag) {
-                tempFileContent = tempFileContent.substring(6);
-                logDebug('Removing the prepended PHP opening tag from the formatted text.');
-            }
+            var tempFileContent = '';
+            var readStream = fs.createReadStream(filePath, {fd: tempFileFd, start: 0});
 
-            // Determine the active document's end position (last line, last character)
-            var documentEndPosition = new vscode.Position(document.lineCount - 1, document.lineAt(new vscode.Position(document.lineCount - 1, 0)).range.end.character);
-            var editRange = new vscode.Range(new vscode.Position(0, 0), documentEndPosition);
-
-            // If the user made a selection, save that range so we will only
-            // replace that part of code after formatting.
-            if(selection != false) {
-                editRange = selection;
-            }
-
-            // Replace either all of the active document's content with that of
-            // the temporary file, or, in case there is a selection, replace
-            // only the part that the user selected.
-            logDebug('Replacing editor content with formatted code.');
-            var textEditResult = vscode.window.activeTextEditor.edit(function(textEditorEdit) {
-                textEditorEdit.replace(editRange, tempFileContent);
+            readStream.on('data', function(chunk) {
+                tempFileContent += chunk;
             });
 
-            textEditResult.then(function(success) {
-                if(success) {
-                    logDebug('Document successfully formatted (' + document.lineCount + ' lines).');
-                } else {
-                    logDebug('Document failed to format (' + document.lineCount + ' lines).');                    
+            readStream.on('end', function() {
+                logDebug(tempFileContent);
+
+                // If we prepended a PHP opening tag manually, we'll have to remove
+                // it now, before we overwrite our document.
+                if(prependedPhpTag) {
+                    tempFileContent = tempFileContent.substring(6);
+                    logDebug('Removed the prepended PHP opening tag from the formatted text.');
                 }
-            }, function(reason) {
-                logDebug('Document failed to format (' + document.lineCount + ' lines).');
+
+                // Determine the active document's end position (last line, last character)
+                var documentEndPosition = new vscode.Position(document.lineCount - 1, document.lineAt(new vscode.Position(document.lineCount - 1, 0)).range.end.character);
+                var editRange = new vscode.Range(new vscode.Position(0, 0), documentEndPosition);
+
+                // If the user made a selection, save that range so we will only
+                // replace that part of code after formatting.
+                if(selection != false) {
+                    editRange = selection;
+                }
+
+                // Replace either all of the active document's content with that of
+                // the temporary file, or, in case there is a selection, replace
+                // only the part that the user selected.
+                logDebug('Replacing editor content with formatted code.');
+                var textEditResult = vscode.window.activeTextEditor.edit(function(textEditorEdit) {
+                    textEditorEdit.replace(editRange, tempFileContent);
+                });
+
+                textEditResult.then(function(success) {
+                    if(success) {
+                        logDebug('Document successfully formatted (' + document.lineCount + ' lines).');
+                    } else {
+                        logDebug('Document failed to format (' + document.lineCount + ' lines) [from success promise].');                    
+                    }
+                }, function(reason) {
+                    logDebug('Document failed to format (' + document.lineCount + ' lines) [from reason promise].');
+                });
+
+                // tempFile.removeCallback();
             });
         } else {
             // Reopen the window. Since the file is edited externally,
@@ -225,6 +255,11 @@ function fix(document) {
 
         return;
     });
+}
+
+// Puts quotes around the given string and returns the resulting string.
+function enquote(input) {
+    return '"' + input + '"';
 }
 
 // Logs a message to the console if the phpformatter.logging setting is set to true.
