@@ -54,7 +54,7 @@
         "phpformatter.onSave": {
           "type": "boolean",
           "default": false,
-          "description": "Whether files should be fixed on save."
+          "description": "Not supported right now. Awaiting an internal VSCode feature (https://github.com/Microsoft/vscode/issues/239). Use the phpformatter.fix command for now instead."
         },
         "phpformatter.level": {
           "type": "string",

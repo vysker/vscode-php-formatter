@@ -12,12 +12,13 @@ function activate(context) {
 
     tmp.setGracefulCleanup();
     
-    var saveCommand = vscode.workspace.onDidSaveTextDocument(function(document) {
-        if(config.get('onSave', false) == false) {
-            return;
-        }
-        fix(document);
-    });
+    // Not supported until https://github.com/Microsoft/vscode/issues/239 is implemented.
+    // var saveCommand = vscode.workspace.onDidSaveTextDocument(function(document) {
+    //     if(config.get('onSave', false) == false) {
+    //         return;
+    //     }
+    //     fix(document);
+    // });
     var fixCommand = vscode.commands.registerCommand('phpformatter.fix', function() {
         fix(vscode.window.activeTextEditor.document);
     });
@@ -46,7 +47,7 @@ function activate(context) {
             });
     }
 
-    context.subscriptions.push(saveCommand);
+    // context.subscriptions.push(saveCommand);
     context.subscriptions.push(fixCommand);
 }
 
@@ -129,7 +130,6 @@ function fix(document) {
         }
 
         // Write the relevant content to the temp file
-        // fs.writeFileSync(tempFileFd, fixContent);
         fs.writeFileSync(tempFileFd, fixContent, {encoding: 'utf8'});
     }
 

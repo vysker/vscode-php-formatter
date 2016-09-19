@@ -2,6 +2,8 @@
 
 After installing as an extension with Visual Studio Code, this extension automatically formats your PHP code, in accordance with PSR-0, PSR-1, [PSR-2](http://www.php-fig.org/psr/psr-2/) or Symfony style conventions.
 
+![GIF example of formatting your PHP code](images/fix-example.gif?raw=true "Example of formatting your PHP code")
+
 ## Features
 
 * Format current selection only, or the whole file.
@@ -20,14 +22,33 @@ Requires installation of the PHP-CS-Fixer. For more info see [their repo](https:
 1. Download this extension by using any of the methods [here](https://code.visualstudio.com/Docs/extensions/install-extension).
 2. Install PHP-CS-Fixer using one of the methods [here](https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation).
 3. Based on your installation method of PHP-CS-Fixer, use one of the following settings:
-  1. **[Composer]** If you installed PHP-CS-Fixer using Composer, then do the following:
-    1. Make sure you add Composer to your PATH environment variable. On Windows that is `%APPDATA%\Composer\vendor\bin`. For Linux that is `/.composer/vendor/bin`.
-    2. Add this to your user settings `"phpformatter.composer": true`.
-  2. **[Manual]** If you installed the php-cs-fixer file manually, then do the following:
-    1. Point the `phpformatter.pharPath` setting to where you put the php-cs-fixer file, e.g. `"phpformatter.pharPath" = "C:/php-cs-fixer.phar"` or `"phpformatter.pharPath" = "/usr/local/bin/php-cs-fixer"`.
-    2. Make sure PHP is part of your PATH environment variable (test this by typing `php -v` into your terminal). If you don't want PHP in your path variable, then add this setting `"phpformatter.phpPath" = "C:\xampp\php.exe"` and point it to the relevant location.
-    3. Make sure the `phpformatter.composer` setting is set to `false`, which it is by default.
-4. To format a file with a custom keybinding or action, see [Extension Commands](#commands). To format a file on save, add this to your [user settings](https://code.visualstudio.com/Docs/customization/userandworkspace): `"phpformatter.onSave" = true`.
+
+   ---
+
+   ### **With Composer**
+
+   Add Composer to your PATH environment variable. E.g. on Windows: `%APPDATA%\Composer\vendor\bin`. E.g. on Linux: `/.composer/vendor/bin`.
+
+   Add `"phpformatter.composer": true` to your VSCode user settings.
+
+   ![VSCode user settings result with Composer](images/install-composer.jpg?raw=true "VSCode user settings result with Composer")
+
+   ---
+
+   ### **Manual**
+
+   Add PHP to your PATH environment variable. I.e. ensure that `php -v` works. Otherwise use `"phpformatter.phpPath" = "/path/to/php/executable"`.
+
+   Point the `phpformatter.pharPath` setting to where you put the php-cs-fixer file.
+
+   ![VSCode user settings result with Manual](images/install-manual.jpg?raw=true "VSCode user settings result with Manual")
+
+   *Not working?* Make sure the `phpformatter.composer` setting is set to `false`, which it is by default.
+
+   ---
+
+4. To format a file with a custom keybinding or action, see [Extension Commands](#commands).
+~~To format a file on save, add this to your [user settings](https://code.visualstudio.com/Docs/customization/userandworkspace): `"phpformatter.onSave" = true`~~ Awaiting VSCode feature to support this functionality.
 5. You're done! You might need to restart Visual Studio Code, however.
 
 ## Extension Settings
@@ -37,7 +58,7 @@ This extension contributes the following settings:
 * `phpformatter.pharPath`: Should point to php-cs-fixer.phar file, if you have installed this manually (without Composer). Should include .phar extension.
 * `phpformatter.phpPath`: If the pharPath is set, and you are not using Composer, this should point to the php.exe file.
 * `phpformatter.composer`: Whether the php-cs-fixer library has been installed using Composer. If true, the extension will override pharPath and assume you have added Composer to your PATH.
-* `phpformatter.onSave`: Whether files should be fixed on save.
+* `phpformatter.onSave`: ~~Whether files should be fixed on save.~~ Not supported right now. Awaiting an [internal VSCode feature](https://github.com/Microsoft/vscode/issues/239). Use [the phpformatter.fix command](#commands) for now instead.
 * `phpformatter.level`: Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony ([More info](https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)).
 * `phpformatter.fixers`: Fixers to use when fixing a file, e.g. strict, short_array_syntax ([More info](https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)).
 * `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot. For this to work you'll also have to configure your VSCode files.associations settings ([More info](https://code.visualstudio.com/Docs/languages/overview#_common-questions)).
@@ -52,7 +73,7 @@ The extension currently contributes just one command. Your Visual Studio Code en
 
 ### phpformatter.fix
 
-* Fixes the current file or selection, if there is any.
+* Fixes the current file, or selection, if there is any.
 * Does not save the file after fixing.
 * Requires `phpformatter.useTempFiles` to be turned on.
 
@@ -64,6 +85,7 @@ After saving the file you should be able to format files using the keybinding `a
 
 ## Known Issues
 
+* `phpformatter.onSave` Not supported right now. Awaiting an [internal VSCode feature](https://github.com/Microsoft/vscode/issues/239). Use [the phpformatter.fix command](#commands) for now instead.
 * If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards. Visual Studio Code only reads out PATH variables during startup.
 * If the setting `phpformatter`.useTempFiles is of, you will lose your undo history after saving the file.
 * If you are on Windows, using xampp, and get the error `PHP Warning: PHP Startup: Unable to load dynamic library`, try going to you xampp directory and run `setup_xampp.bat`. After that, restart Visual Studio Code and try again.
