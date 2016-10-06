@@ -74,63 +74,33 @@ function fix(document) {
         }
     }
 
+    // Variable args will represent the command string.
+    // All the arguments for the command will be appended to the array,
+    // so they can later be joined and delimited by spaces more easily.
     var args = ['fix'];
-
     var filePath = path.normalize(document.uri.fsPath);
 
-    var selection = false;
-    if(!vscode.window.activeTextEditor.selection.isEmpty) {
-        sel = vscode.window.activeTextEditor.selection;
-        selection = new vscode.Range(sel.start, sel.end);
-        logDebug('User has made a selection in the document ([' + sel.start.line + ', ' + sel.start.character + '], [' + sel.end.line + ', ' + sel.end.character + ']).');
+    // Get the currently selected document text
+    var selection = getSelection();
+    if(selection != false) {
+        logDebug('User has made a selection in the document ([' + sel.start.line + ', ' + sel.start.character + '], [' + sel.end.line + ', ' + sel.end.character + ']).');        
+
+        if(_settings.useTempFiles == false) {
+            if(_settings.notifications) vscode.window.showInformationMessage('Fixing current selection is only possible when the "useTempFiles" setting is on. Aborting...');
+            logDebug('Fixing current selection is only possible when the "useTempFiles" setting is on. Aborting...');
+            return;
+        }
     }
 
-    if(selection != false && _settings.useTempFiles == false) {
-        if(_settings.notifications) vscode.window.showInformationMessage('Fixing current selection is only possible when the "useTempFiles" setting is on. Aborting...');
-        logDebug('Fixing current selection is only possible when the "useTempFiles" setting is on. Aborting...');
-        return;
-    }
-
+    // Now let's handle anything related to temp files.
+    // These vars will be referenced down the road, so we instantiate them here, even if the user did not enable temp files.
     var tempFile = null;
     var tempFileFd = -1;
     var prependedPhpTag = false;
+
+    // If the user enabled temp files, then generate one.
     if(_settings.useTempFiles) {
-        // TODO: Use document.lineCount to warn user about possibly crashing the editor because of having to write the file contents
-        logDebug('Creating temp file.');
-
-        // Create temp file
-        tempFile = tmp.fileSync({prefix: 'phpfmt-'});
-        tempFileFd = tempFile.fd;
-        filePath = tempFile.name;
-
-        logDebug('Tempfile fd: ' + tempFile.fd);
-        logDebug('Tempfile name: ' + filePath);
-
-        logDebug('Writing current document content to temp file. Until VSCode will have a way of querying encoding, utf8 will be used for reading and writing.');
-
-        // Content to fix
-        var fixContent = '';
-
-        // If the user made a selection, then only copy the selected text.
-        if(selection != false) {
-            var selectionText = document.getText(selection);
-
-            // If the selected text does not have a PHP opening tag, then
-            // prepend one manually. Otherwise PHP-CS-Fixer will not do
-            // anything at all.
-            if(selectionText.indexOf('<?') == -1) {
-                logDebug('No PHP opening tag found, prepending <?php to selection');
-                selectionText = '<?php\n' + selectionText;
-                prependedPhpTag = true;
-            }
-
-            fixContent = selectionText;
-        } else {
-            fixContent = document.getText();
-        }
-
-        // Write the relevant content to the temp file
-        fs.writeFileSync(tempFileFd, fixContent, {encoding: 'utf8'});
+        createTempFile(selection);
     }
 
     // Make sure to put double quotes around our path, otherwise the command
@@ -168,14 +138,17 @@ function fix(document) {
     var stderr = '';
     var execResult = exec(fixCmd);
 
+    // Output stdout of the fix command result.
     execResult.stdout.on('data', function(buffer) {
         stdout += buffer.toString();
     });
 
+    // Output stderr of the fix command result.
     execResult.stderr.on('data', function(buffer) {
         stderr += buffer.toString();
     });
 
+    // Handle finishing of the fix command.
     execResult.on('close', function(code) {
         if(stdout) {
             logDebug('Logging PHP-CS-Fixer command stdout result');
@@ -195,17 +168,24 @@ function fix(document) {
             // TODO: Detect current document file encoding so we don't have to
             // assume utf8.
             logDebug('Reading temp file content.');
-            // var tempFileContent = fs.readFileSync(tempFileFd, {encoding: 'utf8'}); // Not using this because the file descriptor cursor position cannot be set manually
 
+            // This var will hold the content of the temp file. Every chunk that is read from the ReadStream
+            // will be appended to this var.
             var tempFileContent = '';
+
+            // The reason we are using fs.createReadStream() instead of simply using fs.readFileSync(),
+            // is that the latter does not allow you to set the file descriptor cursor position manually.
+            // Doing so is crucial, because otherwise only parts of the file will be read in many cases.
             var readStream = fs.createReadStream(filePath, {fd: tempFileFd, start: 0});
 
+            // Read the data from the file and append it to the string builder.
             readStream.on('data', function(chunk) {
                 tempFileContent += chunk;
             });
 
+            // When EOF is reached, copy the results back to the original file.
             readStream.on('end', function() {
-                logDebug(tempFileContent);
+                logDebug(tempFileContent, selection);
 
                 // If we prepended a PHP opening tag manually, we'll have to remove
                 // it now, before we overwrite our document.
@@ -214,35 +194,7 @@ function fix(document) {
                     logDebug('Removed the prepended PHP opening tag from the formatted text.');
                 }
 
-                // Determine the active document's end position (last line, last character)
-                var documentEndPosition = new vscode.Position(document.lineCount - 1, document.lineAt(new vscode.Position(document.lineCount - 1, 0)).range.end.character);
-                var editRange = new vscode.Range(new vscode.Position(0, 0), documentEndPosition);
-
-                // If the user made a selection, save that range so we will only
-                // replace that part of code after formatting.
-                if(selection != false) {
-                    editRange = selection;
-                }
-
-                // Replace either all of the active document's content with that of
-                // the temporary file, or, in case there is a selection, replace
-                // only the part that the user selected.
-                logDebug('Replacing editor content with formatted code.');
-                var textEditResult = vscode.window.activeTextEditor.edit(function(textEditorEdit) {
-                    textEditorEdit.replace(editRange, tempFileContent);
-                });
-
-                textEditResult.then(function(success) {
-                    if(success) {
-                        logDebug('Document successfully formatted (' + document.lineCount + ' lines).');
-                    } else {
-                        logDebug('Document failed to format (' + document.lineCount + ' lines) [from success promise].');                    
-                    }
-                }, function(reason) {
-                    logDebug('Document failed to format (' + document.lineCount + ' lines) [from reason promise].');
-                });
-
-                // tempFile.removeCallback();
+                handleTempFileFixResults(tempFileContent);
             });
         } else {
             // Reopen the window. Since the file is edited externally,
@@ -255,6 +207,89 @@ function fix(document) {
 
         return;
     });
+}
+
+function createTempFile(selection) {
+    // TODO: Use document.lineCount to warn user about possibly crashing the editor because of having to write the file contents
+    logDebug('Creating temp file.');
+
+    // Create temp file itself (empty).
+    tempFile = tmp.fileSync({prefix: 'phpfmt-'});
+    tempFileFd = tempFile.fd;
+    filePath = tempFile.name;
+
+    logDebug('Tempfile fd: ' + tempFile.fd);
+    logDebug('Tempfile name: ' + filePath);
+
+    logDebug('Writing current document content to temp file. Until VSCode will have a way of querying encoding, utf8 will be used for reading and writing.');
+
+    // Content to fix.
+    var fixContent = '';
+
+    // If the user made a selection, then only copy the selected text.
+    if(selection != false) {
+        var selectionText = document.getText(selection);
+
+        // If the selected text does not have a PHP opening tag, then
+        // prepend one manually. Otherwise PHP-CS-Fixer will not do
+        // anything at all.
+        if(selectionText.indexOf('<?') == -1) {
+            logDebug('No PHP opening tag found, prepending <?php to selection');
+            selectionText = '<?php\n' + selectionText;
+            prependedPhpTag = true;
+        }
+
+        fixContent = selectionText;
+    } else {
+        fixContent = document.getText();
+    }
+
+    // Write the relevant content to the temp file
+    fs.writeFileSync(tempFileFd, fixContent, {encoding: 'utf8'});
+}
+
+function handleTempFileFixResults(tempFileContent, selection) {
+    // Determine the active document's end position (last line, last character)
+    var documentEndPosition = new vscode.Position(document.lineCount - 1, document.lineAt(new vscode.Position(document.lineCount - 1, 0)).range.end.character);
+    var editRange = new vscode.Range(new vscode.Position(0, 0), documentEndPosition);
+
+    // If the user made a selection, save that range so we will only
+    // replace that part of code after formatting.
+    if(selection != false) {
+        editRange = selection;
+    }
+
+    // Replace either all of the active document's content with that of
+    // the temporary file, or, in case there is a selection, replace
+    // only the part that the user selected.
+    logDebug('Replacing editor content with formatted code.');
+    var textEditResult = vscode.window.activeTextEditor.edit(function(textEditorEdit) {
+        textEditorEdit.replace(editRange, tempFileContent);
+    });
+
+    // Inform the user of the document edits.
+    textEditResult.then(function(success) {
+        if(success) {
+            logDebug('Document successfully formatted (' + document.lineCount + ' lines).');
+        } else {
+            logDebug('Document failed to format (' + document.lineCount + ' lines) [from success promise].');                    
+        }
+    }, function(reason) {
+        logDebug('Document failed to format (' + document.lineCount + ' lines) [from reason promise].');
+    });
+
+    // This does not work for some reason. Keeping this here as a reminder.
+    // tempFile.removeCallback();
+}
+
+function getSelection() {
+    var selection = false;
+    if(!vscode.window.activeTextEditor.selection.isEmpty) {
+        sel = vscode.window.activeTextEditor.selection;
+        selection = new vscode.Range(sel.start, sel.end);
+    }
+
+    return selection;
 }
 
 // Puts quotes around the given string and returns the resulting string.
