@@ -11,7 +11,7 @@ function activate(context) {
     var config = vscode.workspace.getConfiguration('phpformatter');
 
     tmp.setGracefulCleanup();
-    
+
     // Not supported until https://github.com/Microsoft/vscode/issues/239 is implemented.
     // var saveCommand = vscode.workspace.onDidSaveTextDocument(function(document) {
     //     if(config.get('onSave', false) == false) {
@@ -49,6 +49,12 @@ function activate(context) {
 
     // context.subscriptions.push(saveCommand);
     context.subscriptions.push(fixCommand);
+
+    context.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider('php', {
+        provideDocumentFormattingEdits: (document, options, token) => {
+            return fix(document, null, options)
+        }
+    }));
 }
 
 function fix(document) {
@@ -83,7 +89,7 @@ function fix(document) {
     // Get the currently selected document text
     var selection = getSelection();
     if(selection != false) {
-        logDebug('User has made a selection in the document ([' + sel.start.line + ', ' + sel.start.character + '], [' + sel.end.line + ', ' + sel.end.character + ']).');        
+        logDebug('User has made a selection in the document ([' + sel.start.line + ', ' + sel.start.character + '], [' + sel.end.line + ', ' + sel.end.character + ']).');
 
         if(_settings.useTempFiles == false) {
             if(_settings.notifications) vscode.window.showInformationMessage('Fixing current selection is only possible when the "useTempFiles" setting is on. Aborting...');
@@ -106,7 +112,7 @@ function fix(document) {
     // Make sure to put double quotes around our path, otherwise the command
     // (Symfony, actually) will fail when it encounters paths with spaces in them.
     var escapedPath = enquote(filePath);
-    
+
     args.push(escapedPath);
 
     if(_settings.level) {
@@ -272,7 +278,7 @@ function handleTempFileFixResults(tempFileContent, selection) {
         if(success) {
             logDebug('Document successfully formatted (' + document.lineCount + ' lines).');
         } else {
-            logDebug('Document failed to format (' + document.lineCount + ' lines) [from success promise].');                    
+            logDebug('Document failed to format (' + document.lineCount + ' lines) [from success promise].');
         }
     }, function(reason) {
         logDebug('Document failed to format (' + document.lineCount + ' lines) [from reason promise].');
