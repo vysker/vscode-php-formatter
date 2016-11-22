@@ -25,7 +25,7 @@
   "activationEvents": [
     "*"
   ],
-  "main": "./extension",
+  "main": "./out/extension",
   "contributes": {
     "commands": [
       {
@@ -96,13 +96,16 @@
     }
   },
   "scripts": {
-    "postinstall": "node ./node_modules/vscode/bin/install"
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "build": "node ./node_modules/vscode/bin/compile -p ./",
+    "watch": "node ./node_modules/vscode/bin/compile -watch -p ./"
   },
   "dependencies": {
     "open": "~0.0.5",
     "tmp": "0.0.28"
   },
   "devDependencies": {
+    "typescript": "^2.0.10",
     "vscode": "^0.11.0"
   }
 }
