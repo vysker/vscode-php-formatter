@@ -1,3 +1,7 @@
+### 0.2.2
+
+Changed wiki links and page titles.
+
 ### 0.2.1
 
 Removed `phpformatter.onSave` setting because it is now a native vscode feature.
