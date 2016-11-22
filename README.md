@@ -62,10 +62,8 @@ This extension contributes the following settings:
 * `phpformatter.level`: Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony ([More info](https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)).
 * `phpformatter.fixers`: Fixers to use when fixing a file, e.g. strict, short_array_syntax ([More info](https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)).
 * `phpformatter.additionalExtensions`: Which additional file extensions, besides PHP, should be fixed as well. E.g. inc, without the leading dot. For this to work you'll also have to configure your VSCode files.associations settings ([More info](https://code.visualstudio.com/Docs/languages/overview#_common-questions)).
-* `phpformatter.enableFixerLogging`: **Deprecated** in favor of `phpformatter.logging`.
 * `phpformatter.logging`: If true, the extension will log all sorts of (debug) info to the console. Useful for troubleshooting.
 * `phpformatter.notifications`: If true, the extension will show notifications.
-* `phpformatter.useTempFiles`: If true, a temp file will be used for the formatter to fix. After formatting the temp file, the contents will be copied back to the original file. This circumvents a lot of issues the original way had. Therefore, this method will be used by default.
 
 ## <a name="commands"></a>Extension commands
 
@@ -75,7 +73,6 @@ The extension currently contributes just one command. Your Visual Studio Code en
 
 * Fixes the current file, or selection, if there is any.
 * Does not save the file after fixing.
-* Requires `phpformatter.useTempFiles` to be turned on.
 
 To set this up. Go to `File -> Preferences -> Keyboard Shortcuts` and add the following to `keybindings.json`:
 
@@ -85,14 +82,19 @@ After saving the file you should be able to format files using the keybinding `a
 
 ## Known Issues
 
-* `phpformatter.onSave` Not supported right now. Awaiting an [internal VSCode feature](https://github.com/Microsoft/vscode/issues/239). Use [the phpformatter.fix command](#commands) for now instead.
 * If you add Composer to your PATH, make sure to restart ALL of your Visual Studio Code instances afterwards. Visual Studio Code only reads out PATH variables during startup.
-* If the setting `phpformatter`.useTempFiles is of, you will lose your undo history after saving the file.
 * If you are on Windows, using xampp, and get the error `PHP Warning: PHP Startup: Unable to load dynamic library`, try going to you xampp directory and run `setup_xampp.bat`. After that, restart Visual Studio Code and try again.
 
 **Note:** Most issues stem from incorrect installation of the PHP-CS-Fixer, see [their repo](https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation) for more info.
 
 ## Release Notes
+
+### 0.2.0
+
+* Migrated the code to TypeScript!
+* Temp files are now the way to go by default, switching back is no longer supported. Therefore, the `phpformatter.useTempFiles` setting got removed.
+* Deprecated `phpformatter.enableFixerLogging` setting got removed in favor of `phpformatter.logging`.
+* The extension is now categorized as Formatter on the Marketplace.
 
 ### 0.1.3
 
