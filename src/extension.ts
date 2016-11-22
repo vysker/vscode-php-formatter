@@ -34,7 +34,6 @@ function fix(document: TextDocument): TextEdit[] {
     let pharPath: string = config.get('pharPath', '');
     let phpPath: string = config.get('phpPath', '');
     let composer: boolean = config.get('composer', false);
-    let onSave: boolean = config.get('onSave', false);
     let level: string = config.get('level', '');
     let fixers: string = config.get('fixers', '');
     let additionalExtensions: Array<string> = config.get('additionalExtensions', []);

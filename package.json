@@ -52,11 +52,6 @@
           "default": false,
           "description": "Whether the php-cs-fixer library has been installed using Composer. If true, the extension will override pharPath and assume you have added Composer to your PATH."
         },
-        "phpformatter.onSave": {
-          "type": "boolean",
-          "default": false,
-          "description": "Not supported right now. Awaiting an internal VSCode feature (https://github.com/Microsoft/vscode/issues/239). Use the phpformatter.fix command for now instead."
-        },
         "phpformatter.level": {
           "type": "string",
           "default": "psr2",
