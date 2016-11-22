@@ -2,10 +2,10 @@
 
 [Prerequisites](https://github.com/Dickurt/vscode-php-formatter/wiki/Prerequisites)
 
-[Setup](https://github.com/Dickurt/vscode-php-formatter/wiki/Installation-Guide)
+[Setup](https://github.com/Dickurt/vscode-php-formatter/wiki/Setup)
 
-[Configuration](https://github.com/Dickurt/vscode-php-formatter/wiki/Extension-Settings)
+[Configuration](https://github.com/Dickurt/vscode-php-formatter/wiki/Configuration)
 
-[Commands](https://github.com/Dickurt/vscode-php-formatter/wiki/Extension-Commands)
+[Commands](https://github.com/Dickurt/vscode-php-formatter/wiki/Commands)
 
-[Troubleshooting](https://github.com/Dickurt/vscode-php-formatter/wiki/Known-Issues)
+[Troubleshooting](https://github.com/Dickurt/vscode-php-formatter/wiki/Troubleshooting)

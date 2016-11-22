@@ -9,7 +9,7 @@ After installing as an extension with Visual Studio Code, this extension automat
 * Format current selection only, or the whole file.
 * Trigger formatting with custom keybindings or actions.
 * Supports formatting on save.
-* Supports level and fixers.
+* Supports adjustable level (i.e. PSR2) and fixers.
 * Can be configured to support other file extensions than PHP as well, i.e. ".inc" files.
 * Supports different PHP-CS-Fixer installation methods, i.e. Composer vs manual installation.
 
@@ -19,4 +19,8 @@ Refer to our [wiki](https://github.com/Dickurt/vscode-php-formatter/wiki) for a 
 
 ## Configuration
 
-Want custom [keybindings](https://github.com/Dickurt/vscode-php-formatter/wiki/Extension-Commands)? Need specific [levels and fixers](https://github.com/Dickurt/vscode-php-formatter/wiki/Extension-Settings)? Check our [wiki](https://github.com/Dickurt/vscode-php-formatter/wiki)
+Want custom [keybindings](https://github.com/Dickurt/vscode-php-formatter/wiki/Commands)? Need specific [levels and fixers](https://github.com/Dickurt/vscode-php-formatter/wiki/Configuration)? Check out the [wiki](https://github.com/Dickurt/vscode-php-formatter/wiki)
+
+## Troubleshooting
+
+Set up the extension, but can't get it to work? Check the [Troubleshooting](https://github.com/Dickurt/vscode-php-formatter/wiki/Troubleshooting) section.
