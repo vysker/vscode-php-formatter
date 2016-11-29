@@ -24,3 +24,7 @@ Want custom [keybindings](https://github.com/Dickurt/vscode-php-formatter/wiki/C
 ## Troubleshooting
 
 Set up the extension, but can't get it to work? Check the [Troubleshooting](https://github.com/Dickurt/vscode-php-formatter/wiki/Troubleshooting) section.
+
+## Contribute
+
+Want to add a feature or fix an error? Follow the [Contribute](https://github.com/Dickurt/vscode-php-formatter/wiki/Contribute) section on the wiki to get started.
