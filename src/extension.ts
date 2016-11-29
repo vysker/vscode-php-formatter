@@ -31,16 +31,17 @@ export function activate(context: ExtensionContext): void {
 function fix(document: TextDocument): TextEdit[] {
     // Makes our code a little more readable by extracting the config properties into their own variables.
     let config = workspace.getConfiguration('phpformatter');
-    let pharPath: string = config.get('pharPath', '');
-    let phpPath: string = config.get('phpPath', '');
-    let composer: boolean = config.get('composer', false);
-    let level: string = config.get('level', '');
-    let fixers: string = config.get('fixers', '');
-    let additionalExtensions: Array<string> = config.get('additionalExtensions', []);
-    let notifications: boolean = config.get('notifications', false);
+    let _pharPath: string = config.get('pharPath', '');
+    let _phpPath: string = config.get('phpPath', '');
+    let _composer: boolean = config.get('composer', false);
+    let _arguments: Array<string> = config.get('arguments', []);
+    let _level: string = config.get('level', '');
+    let _fixers: string = config.get('fixers', '');
+    let _additionalExtensions: Array<string> = config.get('additionalExtensions', []);
+    let _notifications: boolean = config.get('notifications', false);
 
     if (document.languageId !== 'php') {
-        if (Array.isArray(additionalExtensions) && additionalExtensions.indexOf(document.languageId) != -1) {
+        if (Array.isArray(_additionalExtensions) && _additionalExtensions.indexOf(document.languageId) != -1) {
             logDebug('File is in additionalExtensions array, continuing...');
         } else {
             logDebug('This is neither a .php file, nor anything that was set in additionalExtensions. Aborting...');
@@ -98,21 +99,29 @@ function fix(document: TextDocument): TextEdit[] {
 
     args.push(escapedPath);
 
-    if (level) args.push('--level=' + level);
-    if (fixers) args.push('--fixers=' + fixers);
+    // phpformatter.arguments will only be used if neither phpformatter.level
+    // nor phpformatter.fixers are set.
+    // This will be here until phpformatter.level and phpformatter.fixers are
+    // removed from the plugin in a future update.
+    if (_level) args.push('--level=' + _level);
+    if (_fixers) args.push('--fixers=' + _fixers);
+
+    if (_level == '' && _fixers == '') {
+        args = args.concat(_arguments);
+    }
 
     let fixCommand: string = '';
-    if (composer) {
+    if (_composer) {
         // If PHP-CS-Fixer was installed using Composer, and it was added to the PATH,
         // then we don't have to prepend the command with 'php' or point to the .phar file.
         fixCommand = 'php-cs-fixer ' + args.join(' ');
-    } else if (pharPath) {
+    } else if (_pharPath) {
         // If PHP-CS-Fixer was installed manually, then we will have to provide the full
         // .phar file path. And optionally include the php path as well.
-        args.unshift(enquote(pharPath));
-        fixCommand = enquote(phpPath) + ' ' + args.join(' ');
+        args.unshift(enquote(_pharPath));
+        fixCommand = enquote(_phpPath) + ' ' + args.join(' ');
     } else {
-        if (notifications) window.showInformationMessage('Neither a pharPath or use of Composer was specified. Aborting...');
+        if (_notifications) window.showInformationMessage('Neither a pharPath or use of Composer was specified. Aborting...');
         logDebug('Neither a pharPath or use of Composer was specified. Aborting...');
         return;
     }

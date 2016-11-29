@@ -2,7 +2,7 @@
   "name": "php-formatter",
   "displayName": "PHP Formatter",
   "description": "A wrapper for the Sensiolabs PHP CS Fixer. Analyzes some PHP source code and tries to fix coding standards issues (PSR-1 and PSR-2 compatible).",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "Sophisticode",
   "author": {
     "name": "Dick Visser"
@@ -54,13 +54,20 @@
         },
         "phpformatter.level": {
           "type": "string",
-          "default": "psr2",
-          "description": "Fixer level to use when fixing a file, e.g. psr0, psr1, psr2, symfony (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)."
+          "default": "",
+          "description": "Deprecated in favor of phpformatter.arguments."
         },
         "phpformatter.fixers": {
           "type": "string",
           "default": "",
-          "description": "Fixers to use when fixing a file, e.g. strict, short_array_syntax (https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage)."
+          "description": "Deprecated in favor of phpformatter.arguments."
+        },
+        "phpformatter.arguments": {
+          "type": "array",
+          "default": [
+            "--level=psr2"
+          ],
+          "description": "Add arguments to the executed fix command, like so: ['--level=psr2', '--fixers=linefeed,short_tag,indentation']."
         },
         "phpformatter.additionalExtensions": {
           "type": "array",

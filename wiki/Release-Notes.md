@@ -1,3 +1,8 @@
+### 0.2.3
+
+* Added `phpformatter.arguments`. Use this setting to add any arguments to the fix command, e.g. `['--level=psr2']`.
+* Deprecated `phpformatter.level` and `phpformatter.fixers` settings in favor of `phpformatter.arguments`. If neither `phpformatter.level` nor `phpformatter.fixers` are set, `phpformatter.arguments` will be used.
+
 ### 0.2.2
 
 Changed wiki links and page titles.
