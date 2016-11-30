@@ -1,3 +1,5 @@
+Here's how to configure VSCode to your needs.
+
 ## User Settings
 
 This extension contributes the following settings:
@@ -105,6 +107,7 @@ $fixers = [
     'standardize_not_equal',
     'ternary_spaces',
     'trim_array_spaces',
+    'no_useless_else',
     'unalign_equals',
     'unary_operators_spaces',
     'whitespacy_lines',
