@@ -1,3 +1,8 @@
+### 0.2.4
+
+* Fixed `phpformatter.fix` command. It stopped working as intended sometimes.
+* Fixed `editor.onSave` support. The file got marked as dirty after formatting. Now it no longer does that.
+
 ### 0.2.3
 
 * Added `phpformatter.arguments`. Use this setting to add any arguments to the fix command, e.g. `['--level=psr2']`.

@@ -1,7 +1,7 @@
 import { window, commands, languages, ExtensionContext, Disposable } from 'vscode';
 
 import { DOCUMENT_FILTER } from './document_filter';
-import { Formatter, PHPDocumentFormattingEditProvider } from './formatter';
+import { Formatter, PHPDocumentRangeFormattingEditProvider } from './formatter';
 
 export function activate(context: ExtensionContext): void {
     // Register the 'phpformatter.fix' command.
@@ -12,7 +12,7 @@ export function activate(context: ExtensionContext): void {
 
     // Register ourselves as a document formatter, so we can do things like FormatOnSave.
     let formattingProvider: Disposable =
-        languages.registerDocumentFormattingEditProvider(DOCUMENT_FILTER, new PHPDocumentFormattingEditProvider());
+        languages.registerDocumentRangeFormattingEditProvider(DOCUMENT_FILTER, new PHPDocumentRangeFormattingEditProvider());
 
     context.subscriptions.push(fixCommand);
     context.subscriptions.push(formattingProvider);

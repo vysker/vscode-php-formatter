@@ -1,6 +1,6 @@
-import { workspace, window, Disposable, Command, ExtensionContext, Position, Range, Selection, TextEditor, TextEditorEdit, DocumentFormattingEditProvider, TextDocument, FormattingOptions, CancellationToken, TextEdit } from 'vscode';
+import { workspace, window, Disposable, Command, ExtensionContext, Position, Range, Selection, TextEditor, TextEditorEdit, DocumentRangeFormattingEditProvider, TextDocument, FormattingOptions, CancellationToken, TextEdit } from 'vscode';
 
-import { exec } from 'child_process';
+import { exec, ChildProcess } from 'child_process';
 import * as path from 'path';
 
 let open = require('../node_modules/open');
@@ -13,7 +13,30 @@ import { Helper } from './helper';
 export class Formatter {
     constructor() { }
 
-    public formatDocument(document: TextDocument): Thenable<TextEdit[]> {
+    /**
+     * Applies the appropriate formats to the active text editor.
+     * 
+     * @param document TextDocument to format. Edits will be applied to this document.
+     * @param selection Range to format. If there is no selection, or the selection is empty, the whole document will be formatted.
+     */
+    public formatDocument(document: TextDocument, selection?: Range) {
+        this.getTextEdits(document, selection).then((textEdits) => {
+            textEdits.forEach((te) => {
+                window.activeTextEditor.edit((textEditorEdit: TextEditorEdit) => {
+                    textEditorEdit.replace(te.range, te.newText);
+                });
+            });
+        });
+    }
+
+    /**
+     * Returns a Promise with an array of TextEdits that should be applied when formatting.
+     * 
+     * @param document TextDocument to format. Edits will be applied to this document.
+     * @param selection Range to format. If there is no selection, or the selection is empty, the whole document will be formatted.
+     * @return Promise with an array of TextEdit.
+     */
+    public getTextEdits(document: TextDocument, selection?: Range): Thenable<TextEdit[]> {
         return new Promise((resolve, reject) => {
             // Makes our code a little more readable by extracting the config properties into their own variables.
             let config = workspace.getConfiguration('phpformatter');
@@ -51,19 +74,25 @@ export class Formatter {
             let tempFile: any = tmp.fileSync({ prefix: 'phpfmt-' }); // Create temp file itself (empty).
             let tempFileFd: any = tempFile.fd; // File descriptor of temp file
             let prependedPhpTag: boolean = false; // Whether the to-be-fixed content has a '<?php' tag prepended or not. This is important, because if there is not such a tag present, we'll have to prepend it ourselves, otherwise PHP-CS-Fixer won't do anything.
-            let fixContent: string = ''; // The content that should be fixed (could be either a selection, or the whole document)
+            let contentToFix: string = document.getText(); // The content that should be fixed. If there is a selection, this will be replaced with the selected text.
             filePath = tempFile.name;
 
             Helper.logDebug('Tempfile fd: ' + tempFile.fd);
             Helper.logDebug('Tempfile name: ' + filePath);
             Helper.logDebug('Writing current document content to temp file. Until VSCode will have a way of querying encoding, utf8 will be used for reading and writing.');
 
-            // Get the currently selected document text
-            let selection = Helper.getSelection();
+            // First, we'll assume there is no selection, and just select the whole document.
+            // Determine the active document's end position (last line, last character).
+            let documentEndPosition: Position =
+                new Position(document.lineCount - 1,
+                    document.lineAt(new Position(document.lineCount - 1, 0)).range.end.character);
+            let editRange: Range = new Range(new Position(0, 0), documentEndPosition);
 
             // If the user made a selection, then only copy the selected text.
-            if (selection !== null) {
+            // Also, save that range so we will only replace that part of code after formatting.
+            if (Helper.selectionNotEmpty(selection)) {
                 let selectionText = document.getText(selection);
+                editRange = selection;
 
                 // If the selected text does not have a PHP opening tag, then
                 // prepend one manually. Otherwise PHP-CS-Fixer will not do
@@ -74,13 +103,11 @@ export class Formatter {
                     prependedPhpTag = true;
                 }
 
-                fixContent = selectionText;
-            } else {
-                fixContent = document.getText();
+                contentToFix = selectionText;
             }
 
             // Write the relevant content to the temp file
-            fs.writeFileSync(tempFileFd, fixContent, { encoding: 'utf8' });
+            fs.writeFileSync(tempFileFd, contentToFix, { encoding: 'utf8' });
 
             // Make sure to put double quotes around our path, otherwise the command
             // (Symfony, actually) will fail when it encounters paths with spaces in them.
@@ -133,8 +160,6 @@ export class Formatter {
                 stderr += buffer.toString();
             });
 
-            let textEdit: TextEdit = null;
-
             // Handle finishing of the fix command.
             execResult.on('close', (code: any) => {
                 if (stdout) {
@@ -176,51 +201,13 @@ export class Formatter {
                         Helper.logDebug('Removed the prepended PHP opening tag from the formatted text.');
                     }
 
-                    // Determine the active document's end position (last line, last character).
-                    let documentEndPosition: Position =
-                        new Position(document.lineCount - 1,
-                            document.lineAt(new Position(document.lineCount - 1, 0)).range.end.character);
-                    let editRange: Range = new Range(new Position(0, 0), documentEndPosition);
-
-                    // If the user made a selection, save that range so we will only
-                    // replace that part of code after formatting.
-                    if (selection !== null) editRange = selection;
-
-                    // Replace either all of the active document's content with that of
-                    // the temporary file, or, in case there is a selection, replace
-                    // only the part that the user selected.
+                    let numSelectedLines: number = Helper.getNumSelectedLines(editRange, document);
                     Helper.logDebug('Replacing editor content with formatted code.');
-                    let textEditResult: Thenable<boolean> =
-                        window.activeTextEditor.edit(
-                            (textEditorEdit: TextEditorEdit) => {
-                                textEditorEdit.replace(editRange, fixedContent);
-                            });
+                    Helper.logDebug('Document successfully formatted (' + numSelectedLines + ' lines).');
 
-                    let numSelectedLines: number = document.lineCount;
-                    if (selection !== null) {
-                        numSelectedLines = Helper.getNumSelectedLines(selection);
-                    }
-
-                    // Inform the user of the document edits.
-                    textEditResult.then(
-                        (success) => {
-                            if (success) {
-                                let message: string = 'Document successfully formatted (' + numSelectedLines + ' lines).';
-                                Helper.logDebug(message);
-
-                                let textEdits: TextEdit[] = [];
-                                textEdits.push(TextEdit.replace(editRange, fixedContent));
-                                return resolve(textEdits);
-                            } else {
-                                let message: string = 'Document failed to format (' + numSelectedLines + ' lines) [from success promise].';
-                                Helper.logDebug(message);
-                                return reject(message);
-                            }
-                        }, (reason) => {
-                            let message: string = 'Document failed to format (' + numSelectedLines + ' lines) [from reason promise].';
-                            Helper.logDebug(message);
-                            return reject(message);
-                        });
+                    let textEdits: TextEdit[] = [];
+                    textEdits.push(TextEdit.replace(editRange, fixedContent));
+                    return resolve(textEdits)
 
                     // This does not work for some reason. Keeping this here as a reminder.
                     // tempFile.removeCallback();
@@ -230,16 +217,14 @@ export class Formatter {
     }
 }
 
-export class PHPDocumentFormattingEditProvider implements DocumentFormattingEditProvider {
+export class PHPDocumentRangeFormattingEditProvider implements DocumentRangeFormattingEditProvider {
     private formatter: Formatter;
 
     constructor() {
         this.formatter = new Formatter();
     }
 
-    public provideDocumentFormattingEdits(document: TextDocument, options: FormattingOptions, token: CancellationToken): Thenable<TextEdit[]> {
-        return document.save().then(() => {
-            return this.formatter.formatDocument(document);
-        });
+    public provideDocumentRangeFormattingEdits(document: TextDocument, range: Range, options: FormattingOptions, token: CancellationToken): Thenable<TextEdit[]> {
+        return this.formatter.getTextEdits(document, range);
     }
 }
