@@ -64,9 +64,7 @@
         },
         "phpformatter.arguments": {
           "type": "array",
-          "default": [
-            "--level=psr2"
-          ],
+          "default": [],
           "description": "Add arguments to the executed fix command, like so: ['--level=psr2', '--fixers=linefeed,short_tag,indentation']."
         },
         "phpformatter.additionalExtensions": {
