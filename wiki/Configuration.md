@@ -19,6 +19,8 @@ Whether the php-cs-fixer library has been installed using Composer. If true, the
 ### phpformatter.arguments
 
 Add arguments to the executed fix command, like so: `phpformatter.arguments = ['--level=psr2', '--fixers=linefeed,short_tag,indentation']`.
+~~'--level=psr2'~~ Doesnt Work anymore with https://github.com/FriendsOfPHP/PHP-CS-Fixer
+
 
 ### phpformatter.level
 
